@@ -19,8 +19,8 @@ Interface:
 For an isolated rs232 interface used with this logger see:
 https://github.com/hvegh/Optical-Isolated-RS422-RS485-interace.git
 
-Instalation:
-------------
+Installation:
+-------------
 
 1. Compile the Solar Position Algorithm
    look at the README in lib/spa
