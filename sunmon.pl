@@ -124,8 +124,13 @@ sub meteo
 		warn 'meteo:', $rs->content;
 		return;
 	}
-	( $spa->{pressure}, $spa->{temperature} ) =
-		( split(/ /, $rs->content) )[6,4];
+	my ($tmp, $pre) = ( split(/ /, $rs->content) )[6,4];
+	unless (defined $tmp && defined $pre) {
+		warn 'meteo: undefined response';
+		return;
+	}	
+	$spa->{pressure}	= $tmp;
+	$spa->{temperature}	= $pre;
 }
 
 ################################################################################
