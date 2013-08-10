@@ -153,9 +153,11 @@ sub pvoutput
 	meteo;
 	( $spa->{second}, $spa->{minute}, $spa->{hour} ) =
 			( localtime($stat->get('time')) )[0 .. 2];
-	spa::spa_calculate($spa);
-	my $p = int(3200*cos($spa->{incidence} * 3.14159265358979/180));
-	$p = 0 if $p < 0;
+# Solar incidence
+#
+#	spa::spa_calculate($spa);
+#	my $p = int(3200*cos($spa->{incidence} * 3.14159265358979/180));
+#	$p = 0 if $p < 0;
 
 	my ($d, $t) = split / /,
 		strftime('%Y%m%d %H:%M', localtime($stat->get('time')));
@@ -164,7 +166,7 @@ sub pvoutput
 		t  => $t,
 		v1 => $stat->get('ETODAY') * 1000, 
 		v2 => $stat->get('PAC'),
-		v4 => $p,
+#		v4 => $p,
 		v5 => $spa->{temperature},
 		v6 => $stat->get('VPV1')	});
 	$pvo_ts = time_next($conf{pvo_interval}, $ts) - $conf{interval}/2;
