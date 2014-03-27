@@ -146,12 +146,12 @@ sub meteo
 my $fan_state = 0;
 sub setFan
 {
-	my $temp = $_[0]->get('TEMP');
 	return unless	defined($conf{fan_temp_low})	&&
 			defined($conf{fan_temp_high})	&&
 			defined($conf{fan_cmd_off})	&&
 			defined($conf{fan_cmd_on});
 
+	my $temp = $_[0]->get('TEMP');
 	if ($temp >= $conf{fan_temp_high}) {
 		$fan_state = 1;
 	} elsif($temp <= $conf{fan_temp_low}) {
