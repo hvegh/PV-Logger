@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# (c) 2013 Henk Vergonet
+# (c) 2013, 2014 Henk Vergonet
 # Source can be found on https://github.com/hvegh/PV-Logger.git
 
 use POSIX qw(strftime mktime);
@@ -51,6 +51,12 @@ my %conf = (
 	slope		=> 40,
 	azm_rotation	=> -15,	# SSE
 
+	# Inverter Active Cooling
+#	fan_temp_low    => 35.0,	# Fan switch off temperature
+#	fan_temp_high   => 40.0,	# Fan switch on temperature
+#	fan_cmd_off     => 'irsend SEND_ONCE klik M11OFF',
+#	fan_cmd_on      => 'irsend SEND_ONCE klik M11ON',
+
 	# PVout settings
 	pvo_url		=> 'http://pvoutput.org/service/r2/addstatus.jsp',
 	pvo_apikey	=> '0000000000000011111111111111111112222222',
@@ -58,7 +64,7 @@ my %conf = (
 	pvo_interval	=> 300,		# update interval [s]
 
 	# meteo data
-	meteo_url	=> 'http://www.meteodelft.nl/clientraw.txt',
+	meteo_url	=> 'http://www.weerindelft.nl/clientraw.txt',
 );
 
 $| = 1;         # don't let Perl buffer I/O
@@ -128,9 +134,30 @@ sub meteo
 	unless (defined $tmp && defined $pre) {
 		warn 'meteo: undefined response';
 		return;
-	}	
+	}
 	$spa->{pressure}	= $tmp;
 	$spa->{temperature}	= $pre;
+}
+
+################################################################################
+#
+# Fan control
+#
+my $fan_state = 0;
+sub setFan
+{
+	my $temp = $_[0]->get('TEMP');
+	return unless	defined($conf{fan_temp_low})	&&
+			defined($conf{fan_temp_high})	&&
+			defined($conf{fan_cmd_off})	&&
+			defined($conf{fan_cmd_on});
+
+	if ($temp >= $conf{fan_temp_high}) {
+		$fan_state = 1;
+	} elsif($temp <= $conf{fan_temp_low}) {
+		$fan_state = 0;
+	}
+	system( $fan_state ? $conf{fan_cmd_on} : $conf{fan_cmd_off} );
 }
 
 ################################################################################
@@ -151,10 +178,9 @@ sub pvoutput
 	print "pvoutput update\n" if $_debug; 
 
 	meteo;
-	( $spa->{second}, $spa->{minute}, $spa->{hour} ) =
-			( localtime($stat->get('time')) )[0 .. 2];
 # Solar incidence
-#
+#	( $spa->{second}, $spa->{minute}, $spa->{hour} ) =
+#			( localtime($stat->get('time')) )[0 .. 2];
 #	spa::spa_calculate($spa);
 #	my $p = int(3200*cos($spa->{incidence} * 3.14159265358979/180));
 #	$p = 0 if $p < 0;
@@ -166,7 +192,7 @@ sub pvoutput
 		t  => $t,
 		v1 => $stat->get('ETODAY') * 1000, 
 		v2 => $stat->get('PAC'),
-#		v4 => $p,
+		v4 => $stat->get('TEMP'),
 		v5 => $spa->{temperature},
 		v6 => $stat->get('VPV1')	});
 	$pvo_ts = time_next($conf{pvo_interval}, $ts) - $conf{interval}/2;
@@ -217,6 +243,7 @@ while ( ($t =  time_next($conf{interval}) - 2) < $sunset) {
 
 	$ret = $i->Status || next;
 	pvoutput $ret;
+	setFan $ret;
 
 	# Handle logging
 	unless ($fh) {
