@@ -29,3 +29,12 @@ Installation:
 
 3. run sunmon.pl
 
+Tools & Documentation
+---------------------
+
+tools/analyse.pl:
+
+Calculates line impedance using PV-Logger data files, use the -h option for a description. The tools directory also contains an example data file.
+
+
+(c) 2013, 2014 Henk Vergonet
