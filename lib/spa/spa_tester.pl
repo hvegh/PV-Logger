@@ -25,17 +25,20 @@ use spa;
 my $x = new spa::spa_data();
 
 
-( $x->{second},	$x->{minute},	$x->{hour},
-  $x->{day},	$x->{month},	$x->{year},
-  $x->{timezone} ) = split / /, strftime('%S %M %H %d %m %Y %z', localtime);
-  $x->{timezone} /= 100;
+$x->{second}		= 30;
+$x->{minute}		= 30;
+$x->{hour}		= 12;
+$x->{day}		= 17;
+$x->{month}		= 10;
+$x->{year}		= 2003;
+$x->{timezone}		= -7;
 $x->{delta_t}		= 67;
-$x->{longitude}		= 4;
-$x->{latitude}		= 51;
-$x->{elevation}		= 0;
-$x->{pressure}		= 1020;
-$x->{temperature}	= 1;
-$x->{slope}		= 40;
+$x->{longitude}		= -105.1786;
+$x->{latitude}		= 39.742476;
+$x->{elevation}		= 1830.14;
+$x->{pressure}		= 820;
+$x->{temperature}	= 11;
+$x->{slope}		= 30;
 $x->{azm_rotation}	= -10;
 $x->{atmos_refract}	= 0.5667;
 $x->{function}		= 3;

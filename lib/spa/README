@@ -8,4 +8,23 @@ Compile:
 
 2. Optional check to see if its is working.
 
-	perl test.pl
+	perl spa_tester.pl
+
+   You should get:
+
+	Julian Day:    2452930.312847
+	L:             2.401826e+01 degrees
+	B:             -1.011219e-04 degrees
+	R:             0.996542 AU
+	H:             11.105902 degrees
+	Delta Psi:     -3.998404e-03 degrees
+	Delta Epsilon: 1.666568e-03 degrees
+	Epsilon:       23.440465 degrees
+	Zenith:        50.111622 degrees
+	Azimuth:       194.340241 degrees
+	Azimuth180:    14.340241 degrees
+	Incidence:     25.187000 degrees
+	Sunrise:       06:12:43 Local Time
+	Sunset:        17:20:19 Local Time
+	Suntransit:    11:46:04 Local Time
+
