@@ -16,8 +16,7 @@
 # (c) 2013 Henk vergonet
 # Source can be found on https://github.com/hvegh/PV-Logger.git
 
-CORE_PERL := $(shell perl -V | grep -e '/usr/lib/perl5/[^/]*/i686-linux'$ )
-CORE_PERL := /usr/lib/perl5/5.12.4/i686-linux/CORE
+CORE_PERL := $(shell perl -MConfig -e 'print $$Config{archlib},"/CORE"')
 
 main: _spa.so
 
