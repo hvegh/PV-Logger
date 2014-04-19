@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# (c) 2013 Henk vergonet
+# (c) 2013, 2014 Henk vergonet
 # Source can be found on https://github.com/hvegh/PV-Logger.git
 
 CORE_PERL := $(shell perl -MConfig -e 'print $$Config{archlib},"/CORE"')
