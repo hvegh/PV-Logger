@@ -19,6 +19,24 @@ Interface:
 For an isolated rs232 interface used with this logger see:
 https://github.com/hvegh/Optical-Isolated-RS422-RS485-interace.git
 
+Dependencies:
+-------------
+
+General utillities:
+  - Perl v5
+  - GNU Compiler
+  - GNU Make
+  - swig
+
+Perl modules:
+  - Time::HiRes
+	provide by Time-HiRes
+  - LWP::UserAgent
+  - HTTP::Request
+	provided by libwww-perl
+  - Device-SerialPort
+	provided Device-SerialPort
+
 Installation:
 -------------
 
