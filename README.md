@@ -29,8 +29,6 @@ General utillities:
   - swig
 
 Perl modules:
-  - Time::HiRes
-	provide by Time-HiRes
   - LWP::UserAgent
   - HTTP::Request
 	provided by libwww-perl
@@ -39,6 +37,14 @@ Perl modules:
 
 Installation:
 -------------
+
+0. Install prerequisites
+
+   apt-get install swig libdevice-serialport-perl libwww-perl
+
+   Fix permissions on the serial port, if needed:
+
+   chmod 666 /dev/ttyS<xyz>
 
 1. Compile the Solar Position Algorithm
    look at the README in lib/spa
