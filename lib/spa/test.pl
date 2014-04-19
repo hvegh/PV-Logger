@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# (c) 2013 Henk vergonet
+# (c) 2013, 2014 Henk vergonet
 # Source can be found on https://github.com/hvegh/PV-Logger.git
 
 use strict;
@@ -72,12 +72,3 @@ my $result = spa::spa_calculate($x);
 die "SPA Error code: ", $result, "\n" if $result;
 spa_print;
 
-my $min = 60.0*($x->{suntransit} - int $x->{suntransit});
-my $sec = 60.0*($min - int $min);
-$x->{minute}	= int $min;
-$x->{second}	= int $sec;
-$x->{hour}	= int $x->{suntransit};
-
-my $result = spa::spa_calculate($x);
-die "SPA Error code: ", $result, "\n" if $result;
-spa_print;

@@ -4,12 +4,8 @@ spa.c, spa_tester.c and spa.h are not part of the PV-Logger software.
 
 Compile:
 
-1. Update in Makefile the CORE_PERL variable to point to the right location:
+1. Type make
 
-	CORE_PERL := /usr/lib/perl5/xxxxx/xxxxx/CORE
-
-2. Type make
-
-3. Optional check to see if test.pl is working.
+2. Optional check to see if its is working.
 
 	perl test.pl
