@@ -61,7 +61,11 @@ Tools & Documentation
 
 tools/analyse.pl:
 
-Calculates line impedance using PV-Logger data files, use the -h option for a description. The tools directory also contains an example data file.
+- Calculates line impedance using PV-Logger data files, use the -h option for a description. The tools directory also contains an example data file.
+
+tools/index.html:
+
+- If the datafile 'data.js', generated with sunmon.pl, and index.html are both in the same directory, live charts will be generated. Uncomment and configure 'data_js' in the configuration section of the sunmon.pl to make this happen.
 
 
 (c) 2013, 2014 Henk Vergonet
