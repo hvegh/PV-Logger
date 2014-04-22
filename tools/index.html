@@ -1,0 +1,124 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Cache-control" content="public">
+<title>Live PV Output</title>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript">
+
+$(window).load(function(){
+    $.getScript('data.js',function(){
+	tStart*=1000;
+	tInt*=1000;
+	Highcharts.setOptions({global:{useUTC:false}});
+//	$('#content').text('OK');
+	doChart();
+    })
+});
+
+function doChart() {
+  var tEnd=tStart+(sEnergy.length-1)*tInt;
+  var cOpts={
+	chart:{
+		animation:false,
+		type:'spline',
+		zoomType: 'x',
+		marginLeft:93,
+		marginRight:93
+	},
+	tooltip:{
+		xDateFormat:'%H:%M',
+		useHTML:true,
+		headerFormat:'{point.key}<table>',
+		pointFormat:'<tr><td nowrap style="color:{series.color}">{series.name}</td><td>{point.y}</td></tr>',
+		footerFormat:'</table>',
+		shared:true,borderColor:'#aaa',shadow:false,borderWidth:1,crosshairs:true,
+		valueSuffix:'\u00b0C'
+	},
+	credits:{enabled:false},
+	legend:{enabled:true},
+	xAxis:{
+		type:'datetime',
+		minRange:13*tInt,
+	},
+	plotOptions:{
+	  series:{
+		pointStart:tStart,pointInterval:tInt,
+		animation:false,shadow:false,
+		states:{hover:{lineWidth:2}},
+		marker:{enabled:false,states:{hover:{radius:4,linewidth:1}}}
+	}}};
+
+  var c1opt={
+	title:{text:sPower[sPower.length - 1]+'W, '+Math.max.apply(null,sPower)+'W Peak, '+sEnergy[sEnergy.length - 1]+'kWh'},
+	subtitle:{text:Highcharts.dateFormat('%Y-%m-%d %H:%M',tEnd)},
+	yAxis: [{
+		title:{text:'Power',style:{color:'black'}},
+		labels:{formatter:function(){return this.value+'W'}},
+		min:0
+	},{
+		title:{text:'Energy',style:{color:'black'}},
+		labels:{formatter:function(){return this.value+'kWh'}},
+		opposite:true,
+		gridlineWidth:0,
+		min:0
+	},{
+		title:{text:''},
+		labels:{formatter:function(){return'';}},
+		gridlineWidth:0
+	}],
+	series:[{
+		name: 'Energy Generated',
+		tooltip:{valueSuffix:'kWh',valueDecimals:2},
+		color:'#ccff66',fillOpacity:.60,
+		type:'areaspline',
+		yAxis:1,
+		data:sEnergy
+	},{
+		name:'Power Generated',
+		tooltip:{valueSuffix:'W'},
+		color:'#339933',
+		data:sPower
+	},{
+		name:'Panel Voltage',
+		tooltip:{valueSuffix:'V'},
+		color:'#DF65B0',
+		yAxis:2,
+		data:sVoltage,
+		visible:false
+	}]
+  };
+  $.extend(c1opt,cOpts);
+  $('#chart1').highcharts(c1opt);
+
+  var c2opt={
+	title:{text:''},
+	yAxis:{
+		title:{text:'Temperature',style:{color:'black'}},
+		labels:{formatter:function(){return this.value+'\u00b0C'}},
+	},
+	series:[{
+		name:'Inverter Temperature',
+		color:'#ff5065',
+		data:sInverterTemp
+	},{
+		name:'Outside Temperature',
+		color:'#FD8D3C',
+		data:sTemp
+	}]
+  };
+  $.extend(c2opt,cOpts);
+  $('#chart2').highcharts(c2opt);
+};
+</script>
+</head>
+<body>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
+	<div id="chart1" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+	<div id="chart2" style="min-width: 310px; height: 200px; margin: 0 auto"></div>
+	<div id="content"></div>
+	<center><form><input type=button value="Refresh" onClick="window.location.reload()"></form></center>
+</body>
+</html>

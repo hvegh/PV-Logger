@@ -53,7 +53,7 @@ Installation:
 
 3. run sunmon.pl
 
-4. Setup the script to run daily, using crontab for example, the script will wait for sunrise before it start sampling the inverter and terminates on sunset.
+4. Setup the script to run daily, using crontab for example, the script will wait for sunrise before it starts sampling the inverter and terminates on sunset.
 
 
 Tools & Documentation
