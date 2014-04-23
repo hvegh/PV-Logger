@@ -31,7 +31,7 @@ use DeviceCMS2000;
 use CMS2000emul;
 use strict;
 
-my $_debug = 1;
+my $_debug = 0;
 my %conf = (
 	#emulator => 1,
 
@@ -69,10 +69,10 @@ my %conf = (
 	# Uncomment this if you like to generate data files that can be used
 	# with tools/index.html in order to generate charts. Place both
 	# data.js and index.html in the same directory.
-	#data_js		=> '/tmp/data.js',
+#	data_js		=> '/tmp/data.json',
 );
 
-$| = 1;         # don't let Perl buffer I/O
+$| = 1;	# don't let Perl buffer I/O
 
 ################################################################################
 #
@@ -211,28 +211,32 @@ sub pvoutput
 my @_js = ();
 sub data_js
 {
-	return unless $conf{data_js};
-	my $stat = shift;
-	push @_js, {
-		time	=> $stat->get('time'),
-		ETODAY	=> $stat->get('ETODAY'),
-		PAC	=> $stat->get('PAC'),
+  return unless $conf{data_js};
+  my $stat = shift;
+  push @_js, {
+  		time	=> $stat->get('time'),
+  		ETODAY	=> $stat->get('ETODAY'),
+  		PAC	=> $stat->get('PAC'),
 		VPV1	=> $stat->get('VPV1'),
 		TEMP	=> $stat->get('TEMP'),
 		temp	=> $spa->{temperature},
-	};
-	return unless @_js > 3;
-	my $fo;
-	open $fo, '>', $conf{data_js}.'~' or die $!;
-	print $fo "var tInt=$conf{interval};\n";
-	print $fo "var tStart=",$_js[1]->{time}-$conf{interval},";\n";
-	print $fo "var sEnergy=[",join(',', map { $_->{ETODAY} } @_js),"];\n";
-	print $fo "var sPower=[",join(',', map { $_->{PAC} } @_js),"];\n";
-	print $fo "var sVoltage=[",join(',', map { $_->{VPV1} } @_js),"];\n";
-	print $fo "var sTemp=[",(defined $_->{temp} ? join(',', map { $_->{temp} } @_js):''),"];\n";
-	print $fo "var sInverterTemp=[",join(',', map { $_->{TEMP} } @_js),"];\n";
-	close $fo;
-	rename $conf{data_js}.'~', $conf{data_js};
+  };
+  return unless @_js > 3;
+  open my $fo, '>', $conf{data_js}.'~' or die $!;
+  print $fo "{\"tInt\":$conf{interval},";
+  print $fo "\"tStart\":",	$_js[1]->{time}-$conf{interval},",";
+  print $fo "\"sEnergy\":[",
+		join(',', map { $_->{ETODAY} } @_js),	"],";
+  print $fo "\"sPower\":[",
+		join(',', map { $_->{PAC} } @_js),	"],";
+  print $fo "\"sVoltage\":[",
+		join(',', map { $_->{VPV1} } @_js),	"],";
+  print $fo "\"sTemp\":[", ( defined $_js[1]->{temp} ?
+		join(',', map { $_->{temp} } @_js):''),	"],";
+  print $fo "\"sInverterTemp\":[",
+		join(',', map { $_->{TEMP} } @_js),	"]}";
+  close $fo;
+  rename $conf{data_js}.'~', $conf{data_js};
 }
 
 ################################################################################

@@ -22,9 +22,9 @@ use strict;
 use Getopt::Std;
 
 my %arg = ( );
-getopts("svh", \%arg);
+getopts("j:svh", \%arg);
 
-die "$0 [-svh] <solarlog files> | STDIN
+die "$0 [-jsvh] <solarlog files> | STDIN
 
 --- Analysis tools ---
 
@@ -33,10 +33,14 @@ Line impedance estimator:
   source using statistical analysis of the voltage and current fluctuations
   meaured at the inverter.
 
+Generate JSON datafile
+  Generates a datafile for use with index.html script.
+
 Options:
-  -s	: Perform the operation on the input files individually 
-  -v 	: Be more verbose.
-  -h	: This help.
+  -j <file>	: generate JSON datafile.
+  -s		: Perform the operation on the input files individually 
+  -v	 	: Be more verbose.
+  -h		: This help.
 " if $arg{h};
 
 ################################################################################
@@ -47,7 +51,7 @@ sub parse
 {
 	my ($f, $vh, $keyname) = @_[0..2];
 
-	open(my $fh, $f) or die $!;
+	open(my $fh, $f) or die $!, " ", $f;
 	my $hdr = <$fh> || warn $!;
 	chomp $hdr;
 	my $kcnt = my @k = split /\|/, $hdr;
@@ -136,14 +140,45 @@ EXIT: {
    return $p_v[1], ($p_v[2]-$p_v[0])/2;
 }
 
-sub Tools {
-	printf "\tImpedance: %f Ohm, sigma %f\n",
-						(Impedance $_[0]);
+################################################################################
+#
+# Generate JSON
+#
+sub data_js
+{
+  my $v = $_[0];
+  my @k = ( sort {$a <=> $b} keys %$v );
+  return unless @k > 3;
+
+  my $interval = $k[2]-$k[1];
+
+  open my $fo, '>'.($_[1] || '-') or die $!;
+  print $fo "{\"tInt\":$interval,";
+  print $fo "\"tStart\":",	$k[1]-$interval,",";
+  print $fo "\"sEnergy\":[",
+		join(',', map { $v->{$_}->{ETODAY} } @k),	"],";
+  print $fo "\"sPower\":[",
+		join(',', map { $v->{$_}->{PAC} } @k),	"],";
+  print $fo "\"sVoltage\":[",
+		join(',', map { $v->{$_}->{VPV1} } @k),	"],";
+  print $fo "\"sTemp\":[", ( defined $v->{$k[1]}->{temp} ?
+		join(',', map { $v->{$_}->{temp} } @k):''),	"],";
+  print $fo "\"sInverterTemp\":[",
+		join(',', map { $v->{$_}->{TEMP} } @k),	"]}";
+  close $fo;
 }
 
 ################################################################################
 # MAIN
 ################################################################################
+
+sub Tools {
+	if ($arg{j}) {
+		data_js $_[0], $arg{j};
+	} else {
+		printf "\tImpedance: %f Ohm, sigma %f\n", (Impedance $_[0]);
+	}
+}
 
 my %val;
 foreach my $f ( (scalar @ARGV > 0 ? @ARGV : '-') ) {

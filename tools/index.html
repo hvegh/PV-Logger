@@ -1,24 +1,45 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="Cache-control" content="public">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Live PV Output</title>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<meta http-equiv="Cache-control" content="public">
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
 <script type="text/javascript">
+var tInt=60000;
 
-$(window).load(function(){
-    $.getScript('data.js',function(){
-	tStart*=1000;
-	tInt*=1000;
-	Highcharts.setOptions({global:{useUTC:false}});
-//	$('#content').text('OK');
-	doChart();
-    })
+function getData() {
+	var req = new XMLHttpRequest();
+	req.open('GET', 'data.json', true);
+	req.send();
+	req.onload = function() {
+		if (this.status == 200) {
+			doChart(JSON.parse(this.response));
+		} else {
+			$('#content').text(Error(this.statusText));
+		}
+	}
+	setTimeout(function () { document.getElementById('refresh').disabled = false; }, tInt);
+};
+
+$(document).ready(function(){
+	$('#refresh').click(function(){
+		document.getElementById('refresh').disabled = true;
+		getData();
+	});
 });
 
-function doChart() {
-  var tEnd=tStart+(sEnergy.length-1)*tInt;
+$(function () {
+	Highcharts.setOptions({global:{useUTC:false}});
+	getData();
+});
+
+function doChart(d) {
+  var tStart=d.tStart*1000;
+  var nPoints=d.sEnergy.length;
+  tInt=d.tInt*1000;
+  var tEnd=tStart+nPoints*tInt;
   var cOpts={
 	chart:{
 		animation:false,
@@ -51,7 +72,7 @@ function doChart() {
 	}}};
 
   var c1opt={
-	title:{text:sPower[sPower.length - 1]+'W, '+Math.max.apply(null,sPower)+'W Peak, '+sEnergy[sEnergy.length - 1]+'kWh'},
+	title:{text:d.sPower[nPoints - 1]+'W, '+Math.max.apply(null,d.sPower)+'W Peak, '+d.sEnergy[nPoints - 1]+'kWh'},
 	subtitle:{text:Highcharts.dateFormat('%Y-%m-%d %H:%M',tEnd)},
 	yAxis: [{
 		title:{text:'Power',style:{color:'black'}},
@@ -74,23 +95,21 @@ function doChart() {
 		color:'#ccff66',fillOpacity:.60,
 		type:'areaspline',
 		yAxis:1,
-		data:sEnergy
+		data:d.sEnergy
 	},{
 		name:'Power Generated',
 		tooltip:{valueSuffix:'W'},
 		color:'#339933',
-		data:sPower
+		data:d.sPower
 	},{
 		name:'Panel Voltage',
 		tooltip:{valueSuffix:'V'},
 		color:'#DF65B0',
 		yAxis:2,
-		data:sVoltage,
+		data:d.sVoltage,
 		visible:false
 	}]
   };
-  $.extend(c1opt,cOpts);
-  $('#chart1').highcharts(c1opt);
 
   var c2opt={
 	title:{text:''},
@@ -101,14 +120,16 @@ function doChart() {
 	series:[{
 		name:'Inverter Temperature',
 		color:'#ff5065',
-		data:sInverterTemp
+		data:d.sInverterTemp
 	},{
 		name:'Outside Temperature',
 		color:'#FD8D3C',
-		data:sTemp
+		data:d.sTemp
 	}]
   };
+  $.extend(c1opt,cOpts);
   $.extend(c2opt,cOpts);
+  $('#chart1').highcharts(c1opt);
   $('#chart2').highcharts(c2opt);
 };
 </script>
@@ -119,6 +140,6 @@ function doChart() {
 	<div id="chart1" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 	<div id="chart2" style="min-width: 310px; height: 200px; margin: 0 auto"></div>
 	<div id="content"></div>
-	<center><form><input type=button value="Refresh" onClick="window.location.reload()"></form></center>
+	<center><form><input id="refresh" type=button value="Refresh" disabled=true></form></center>
 </body>
 </html>
