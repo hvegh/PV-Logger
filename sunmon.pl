@@ -33,42 +33,45 @@ use strict;
 
 my $_debug = 0;
 my %conf = (
-	#emulator => 1,
+	emulator => 1,
 
 	port => '/dev/ttyS1',
 	baud => 9600,
 	parity => 'none',
 
 	# inverter settings
-	serialnumber	=> 'xxxxxxxxxx',
+	#serialnumber	=> '1234FF0126',# Will be queried from device 
 	interval	=> 60,		# query interval [s]
-	logpath		=> '/var/log/solar',
+	logpath		=> '/tmp',
 
-	# panel location and orientation
+	# panel location and orientation, in order to derermine sunset and sunrise.
 	longitude	=> 4.0,
 	latitude	=> 51.0,
 	elevation	=> 0,
 	slope		=> 40,
 	azm_rotation	=> -15,	# SSE
 
-	# Inverter Active Cooling
+	# Inverter Active Cooling (optional)
 #	fan_temp_low    => 35.0,	# Fan switch off temperature
 #	fan_temp_high   => 40.0,	# Fan switch on temperature
 #	fan_cmd_off     => 'irsend SEND_ONCE klik M11OFF',
 #	fan_cmd_on      => 'irsend SEND_ONCE klik M11ON',
 
-	# PVout settings
-	pvo_url		=> 'http://pvoutput.org/service/r2/addstatus.jsp',
-	pvo_apikey	=> '0000000000000011111111111111111112222222',
-	pvo_sid		=> 43210,
-	pvo_interval	=> 300,		# update interval [s]
+	# PVout settings (optional)
+#	pvo_url		=> 'http://pvoutput.org/service/r2/addstatus.jsp',
+#	pvo_apikey	=> '0000000000000011111111111111111112222222',
+#	pvo_sid		=> 43210,
+#	pvo_interval	=> 300,		# update interval [s]
 
-	# meteo data
-	meteo_url	=> 'http://www.weerindelft.nl/clientraw.txt',
+	# meteo data (optional)
+#	meteo_url	=> 'http://www.weerindelft.nl/clientraw.txt',
 
+	# WWW server output (optional)
+	#
 	# Uncomment this if you like to generate data files that can be used
 	# with tools/index.html in order to generate charts. Place both
-	# data.js and index.html in the same directory.
+	# data.js and index.html in the same directory. Of course you will need
+	# to have some sort of http(s) server running.
 #	data_js		=> '/tmp/data.json',
 );
 
@@ -129,6 +132,8 @@ my $spa = new spa::spa_data();
 #
 sub meteo
 {
+	return unless $conf{meteo_url};
+
 	my $ua = new LWP::UserAgent(timeout => 10);
 	my $rs = $ua->get($conf{meteo_url});
 	if ($rs->is_error) {
@@ -178,6 +183,8 @@ $ua->default_header(
 
 sub pvoutput
 {
+	return unless $conf{pvo_url};
+
 	my ($stat, $ts) = (shift, time);
 	return 0 if $ts <$pvo_ts;
 	print "pvoutput update\n" if $_debug; 
