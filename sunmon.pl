@@ -33,7 +33,7 @@ use strict;
 
 my $_debug = 0;
 my %conf = (
-	emulator => 1,
+	emulator => 0,
 
 	port => '/dev/ttyS1',
 	baud => 9600,
