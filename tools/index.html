@@ -1,41 +1,41 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Live PV Output</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="Cache-control" content="public">
 <link rel="shortcut icon" href="http://wijhebbenzon.nl/favicon.ico" type="image/x-icon">
-<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
-<script type="text/javascript">
-var tInt=60000;
+<script src="http://code.highcharts.com/adapters/standalone-framework.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
+<script>
+Object.extend = function(d, s) {
+	for (var property in s) {
+		if (s.hasOwnProperty(property)) {
+			d[property] = s[property];
+		}
+	}
+	return d;
+};
 
+var tInt=60000;
 function getData() {
+	document.getElementById('refresh').disabled = true;
 	var req = new XMLHttpRequest();
 	req.open('GET', 'data.json', true);
 	req.send();
 	req.onload = function() {
 		if (this.status == 200) {
 			doChart(JSON.parse(this.response));
+			setTimeout(function () { document.getElementById('refresh').disabled = false; }, tInt);
 		} else {
-			$('#content').text(Error(this.statusText));
+			document.getElementById("content").innerHTML=Error(this.statusText);
 		}
 	}
-	setTimeout(function () { document.getElementById('refresh').disabled = false; }, tInt);
 };
 
-$(document).ready(function(){
-	$('#refresh').click(function(){
-		document.getElementById('refresh').disabled = true;
-		getData();
-	});
-});
-
-$(function () {
-	Highcharts.setOptions({global:{useUTC:false}});
-	getData();
-});
-
 function doChart(d) {
+  Highcharts.setOptions({global:{useUTC:false}});
   var tStart=d.tStart*1000;
   var nPoints=d.sEnergy.length;
   tInt=d.tInt*1000;
@@ -46,6 +46,7 @@ function doChart(d) {
 		type:'spline',
 		zoomType: 'x',
 		marginLeft:93,
+		renderTo: '',
 		marginRight:93
 	},
 	tooltip:{
@@ -110,6 +111,9 @@ function doChart(d) {
 		visible:false
 	}]
   };
+  Object.extend(c1opt,cOpts);
+  c1opt.chart.renderTo = 'chart1';
+  var c1 = new Highcharts.Chart(c1opt);
 
   var c2opt={
 	title:{text:''},
@@ -127,19 +131,15 @@ function doChart(d) {
 		data:d.sTemp
 	}]
   };
-  $.extend(c1opt,cOpts);
-  $.extend(c2opt,cOpts);
-  $('#chart1').highcharts(c1opt);
-  $('#chart2').highcharts(c2opt);
+  Object.extend(c2opt,cOpts);
+  c2opt.chart.renderTo = 'chart2';
+  var c2 = new Highcharts.Chart(c2opt);
 };
 </script>
-</head>
-<body>
-<script src="http://code.highcharts.com/highcharts.js"></script>
-<script src="http://code.highcharts.com/modules/exporting.js"></script>
-	<div id="chart1" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-	<div id="chart2" style="min-width: 310px; height: 200px; margin: 0 auto"></div>
-	<div id="content"></div>
-	<center><form><input id="refresh" type=button value="Refresh" disabled=true></form></center>
+<body onload="getData()">
+<div id="chart1" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="chart2" style="min-width: 310px; height: 200px; margin: 0 auto"></div>
+<div id="content"></div>
+<center><form><input id="refresh" type=button value="Refresh" disabled=true onclick="getData()"></form></center>
 </body>
 </html>
