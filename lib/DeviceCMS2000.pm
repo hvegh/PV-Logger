@@ -141,6 +141,10 @@ my %parm_status = (
 		name	=> 'Error message: GF fault value',
 		key	=> 'ERR_GF',
 		},
+	0x7a =>	{
+		name	=> 'Error message: GZ fault value',
+		key	=> 'ERR_GZ',
+		},
 	0x7b =>	{
 		name	=> 'Error message: Tmp fault value',
 		key	=> 'ERR_TEMP',

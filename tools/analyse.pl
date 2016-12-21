@@ -22,9 +22,9 @@ use strict;
 use Getopt::Std;
 
 my %arg = ( );
-getopts("j:svh", \%arg);
+getopts("j:nsvh", \%arg);
 
-die "$0 [-jsvh] <solarlog files> | STDIN
+die "$0 [-jnsvh] <solarlog files> | STDIN
 
 --- Analysis tools ---
 
@@ -38,6 +38,7 @@ Generate JSON datafile
 
 Options:
   -j <file>	: generate JSON datafile.
+  -n		: conversion efficiency.
   -s		: Perform the operation on the input files individually 
   -v	 	: Be more verbose.
   -h		: This help.
@@ -142,6 +143,21 @@ EXIT: {
 
 ################################################################################
 #
+# Calculate efficiency (  Vac.Iac / Vdc.Idc
+#
+sub Efficiency
+{
+   my $val = $_[0];
+   foreach my $k (sort {$a <=> $b} keys %$val) {
+	my $p = $val->{$k}->{VPV1} * $val->{$k}->{IPV1};
+	my $n = 0;
+	$n = ($val->{$k}->{VAC} * $val->{$k}->{IAC}) / $p if $p > 30;
+	print "$p, $n\n";
+   }
+}
+
+################################################################################
+#
 # Generate JSON
 #
 sub data_js
@@ -175,6 +191,8 @@ sub data_js
 sub Tools {
 	if ($arg{j}) {
 		data_js $_[0], $arg{j};
+	} elsif ($arg{n}) {
+		Efficiency $_[0];
 	} else {
 		printf "\tImpedance: %f Ohm, sigma %f\n", (Impedance $_[0]);
 	}
